@@ -1,21 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:sqflite/sqflite.dart';
+import 'db.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 
 class addDialog extends Dialog{
+  SourceData sourceData = new SourceData();
   String url;
   addDialog({
     Key key,
     this.url
   }) : super(key: key);
 
-  getRssData(url) {
+  getRssData(url)  {
     var data ;
-    Dio().request(url).then((response){
-      if(response.statusCode==200){
-        data = response.data;
+    if(url==null){
+      Fluttertoast.showToast(
+          msg: "URL不能为空！",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0
+      );
+    }else{
+      try {
+        Dio().request(url).then((response){
+          if(response.statusCode==200){
+
+          }else{
+            Fluttertoast.showToast(
+                msg: "网络错误，请检查RSS源地址！",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIos: 1,
+                backgroundColor: Colors.grey,
+                textColor: Colors.black,
+                fontSize: 16.0
+            );
+          }
+        }).catchError((DioError e){
+          Fluttertoast.showToast(
+              msg: "网络错误，请检查RSS源地址！",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIos: 1,
+              backgroundColor: Colors.grey,
+              textColor: Colors.black,
+              fontSize: 16.0
+          );
+        });
+      } catch (e) {
+        print(e);
+        print('ERRPR');
+        Fluttertoast.showToast(
+            msg: "网络错误，请检查RSS源地址！",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIos: 1,
+            backgroundColor: Colors.grey,
+            textColor: Colors.black,
+            fontSize: 16.0
+        );
       }
-    });
+    }
+
+
     return data;
   }
 
@@ -56,6 +107,10 @@ class addDialog extends Dialog{
                         Container(
                           width: (MediaQuery.of(context).size.width-68)/2,
                           child: FlatButton(onPressed: (){
+//                            var db = new SourceData();
+//                            db.openDb();
+//                            print(db.queryAll());
+                            getSources();
                             Navigator.of(context).pop();
                           }, child:
                           Text('取消'))
@@ -64,7 +119,9 @@ class addDialog extends Dialog{
                         Container(
                           width: (MediaQuery.of(context).size.width-68)/2,
                           child: FlatButton(onPressed: (){
-                            print(getRssData(this.url));
+                            print(this.url);
+                            getRssData(this.url);
+//                            saveSource();
                           }, child:
                           Text('确认'))
                           ,
@@ -86,5 +143,17 @@ class addDialog extends Dialog{
       ),
     );
   }
+  saveSource()async{
+    await sourceData.openDb();
+    await sourceData.insert(new Source("flutter大全0","flutter","中国出版"));
+    await sourceData.close();
+  }
+  getSources()async{
+    await sourceData.openDb();
+    List<Source> returns = await sourceData.queryAll();
+    await sourceData.close();
+    print(returns[0].url);
+  }
+
 }
 

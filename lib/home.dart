@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add.dart';
+import 'db.dart';
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -19,11 +20,27 @@ class MyHomePage extends StatefulWidget {
 }
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  List<Source> sources;
+  SourceData sourceData = new SourceData();
 
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
+  }
+  @override
+  _MyHomePageState(){
+//    super.initState();
+    getSources();
+  }
+  getSources()async{
+    await sourceData.openDb();
+    List<Source> returns = await sourceData.queryAll();
+    await sourceData.close();
+    setState(() {
+      sources = returns;
+    });
+//    print(returns[0].url);
   }
 
   @override
@@ -67,6 +84,11 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.display1,
             ),
+            FlatButton(onPressed: (){
+              print('Sources');
+              print(sources[0].id);
+//              print(getSources());
+            }, child: Icon(Icons.print))
           ],
         ),
       ),
@@ -87,4 +109,5 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     );
   }
+
 }

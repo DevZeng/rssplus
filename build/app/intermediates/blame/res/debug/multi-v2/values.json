@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/zeng/Codes/rssplus/build/app/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+            "outputFile": "/Users/zeng/Code/FlutterProject/rssplus/build/app/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
             "map": [
                 {
-                    "source": "/Users/zeng/Codes/rssplus/android/app/src/main/res/values/styles.xml",
+                    "source": "/Users/zeng/Code/FlutterProject/rssplus/android/app/src/main/res/values/styles.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

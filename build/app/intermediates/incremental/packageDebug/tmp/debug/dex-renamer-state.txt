@@ -1,4 +1,4 @@
-#Sun May 05 20:03:24 CST 2019
-base.0=/Users/zeng/Codes/rssplus/build/app/intermediates/transforms/dexMerger/debug/0
+#Mon May 06 17:14:42 CST 2019
+base.0=/Users/zeng/Code/FlutterProject/rssplus/build/app/intermediates/transforms/dexMerger/debug/0
 path.0=classes.dex
 renamed.0=classes.dex

@@ -14,8 +14,8 @@ class Source{
   String url;
   String favicon;
 
-  Source(int id ,String title,String url ,String favicon){
-    this.id = id;
+  Source(String title,String url ,String favicon){
+//    this.id = id;
     this.title = title;
     this.url = url;
     this.favicon = favicon;
@@ -42,7 +42,7 @@ class Source{
 
 class SourceData {
   Database db;
-  openDb() async{
+   openDb() async{
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'rssplus.db');
     db = await openDatabase(path,version: 1,onCreate: (Database db,int version) async{

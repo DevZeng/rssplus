@@ -30,7 +30,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   @override
   _MyHomePageState(){
-//    super.initState();
     getSources();
   }
   getSources()async{
@@ -38,9 +37,14 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Source> returns = await sourceData.queryAll();
     await sourceData.close();
     setState(() {
+//      print(returns.length);
       sources = returns;
     });
-//    print(returns[0].url);
+  }
+  delSource(int id) async {
+    await sourceData.openDb();
+    await sourceData.delete(id);
+    await sourceData.close();
   }
 
   @override
@@ -57,40 +61,49 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-            FlatButton(onPressed: (){
-              print('Sources');
-              print(sources[0].id);
-//              print(getSources());
-            }, child: Icon(Icons.print))
-          ],
-        ),
+      body:ListView.separated(
+        itemCount: sources==null?0:sources.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: Image.network("${sources[index].favicon}"),
+            title: Text("${sources[index].title}"),
+            trailing: IconButton(icon: Icon(Icons.delete), onPressed: (){
+              delSource(sources[index].id);
+              sources.remove(sources[index]);
+              setState(() {
+                sources = sources;
+              });
+            }),
+            onLongPress: (){
+              print('TEST');
+              showDialog<Null>(
+                context: context,
+                builder: (BuildContext context) {
+                  return new SimpleDialog(
+                    title: new Text('操作'),
+                    children: <Widget>[
+                      new SimpleDialogOption(
+                        child: new Text('删除'),
+                        onPressed: () {
+                          delSource(sources[index].id);
+                          sources.remove(sources[index]);
+                          setState(() {
+                            sources = sources;
+                          });
+//                          SourceData().delete(id);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ).then((val) {
+//                print(val);
+              });
+            },
+          );
+        },
+        separatorBuilder: (context, index) => Divider(height: .0),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: showAddDialog,
@@ -109,5 +122,6 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     );
   }
+
 
 }

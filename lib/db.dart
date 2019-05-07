@@ -101,6 +101,21 @@ class SourceData {
     return await db.update(tableName, source.toMap(),
         where: '$columnId = ?', whereArgs: [source.id]);
   }
+  Future<Source> getSourceByTitle(String title) async {
+    List<Map> maps = await db.query(tableName,
+        columns: [
+          columnId,
+          columnTitle,
+          columnFavicon,
+          columnUrl
+        ],
+        where: '$columnTitle = ?',
+        whereArgs: [title]);
+    if (maps.length > 0) {
+      return Source.fromMap(maps.first);
+    }
+    return null;
+  }
 
   close() async {
     await db.close();

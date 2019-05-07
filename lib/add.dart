@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'db.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:xml/xml.dart' as xml;
+//import 'package:matcher/mirror_matchers.dart';
 
 
-class addDialog extends Dialog{
+
+class addDialog extends Dialog {
   SourceData sourceData = new SourceData();
   String url;
   addDialog({
@@ -12,7 +15,7 @@ class addDialog extends Dialog{
     this.url
   }) : super(key: key);
 
-  getRssData(url)  {
+  getRssData(url) {
     var data ;
     if(url==null){
       Fluttertoast.showToast(
@@ -25,11 +28,42 @@ class addDialog extends Dialog{
           fontSize: 16.0
       );
     }else{
-      try {
         Dio().request(url).then((response){
           if(response.statusCode==200){
+            var xmlContent = response.data;
+            var document = xml.parse(xmlContent);
+            var isXml = document.findAllElements('rss');
+            if(isXml == null){
+              Fluttertoast.showToast(
+                  msg: "不是有效的RSS源！",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Colors.grey,
+                  textColor: Colors.black,
+                  fontSize: 16.0
+              );
+            }
+            var title = document.findAllElements('title').first.text;
+            var sourceUrl = document.findAllElements('link').first.text;
+            Source source = new Source(title, url, sourceUrl+'/favicon.ico');
+            Future<Source> oldSource =  sourceData.getSourceByTitle(title);
+            if(oldSource != null){
+              Fluttertoast.showToast(
+                  msg: "已存在的RSS源！",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Colors.grey,
+                  textColor: Colors.black,
+                  fontSize: 16.0
+              );
+            }else{
+              saveSource(source);
+            }
 
           }else{
+            print(response.statusCode);
             Fluttertoast.showToast(
                 msg: "网络错误，请检查RSS源地址！",
                 toastLength: Toast.LENGTH_SHORT,
@@ -40,30 +74,41 @@ class addDialog extends Dialog{
                 fontSize: 16.0
             );
           }
-        }).catchError((DioError e){
-          Fluttertoast.showToast(
-              msg: "网络错误，请检查RSS源地址！",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIos: 1,
-              backgroundColor: Colors.grey,
-              textColor: Colors.black,
-              fontSize: 16.0
-          );
+        }).catchError((e){
+          print(e.runtimeType);
+          if(e is xml.XmlParserException){
+            Fluttertoast.showToast(
+                msg: "不是有效的RSS源！",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIos: 1,
+                backgroundColor: Colors.grey,
+                textColor: Colors.black,
+                fontSize: 16.0
+            );
+          }
+          if(e is DioError){
+            Fluttertoast.showToast(
+                msg: "网络错误，请检查网络或RSS源地址！",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIos: 1,
+                backgroundColor: Colors.grey,
+                textColor: Colors.black,
+                fontSize: 16.0
+            );
+          }
+//          Fluttertoast.showToast(
+//              msg: "网络错误，请检查RSS源地址！",
+//              toastLength: Toast.LENGTH_SHORT,
+//              gravity: ToastGravity.BOTTOM,
+//              timeInSecForIos: 1,
+//              backgroundColor: Colors.grey,
+//              textColor: Colors.black,
+//              fontSize: 16.0
+//          );
         });
-      } catch (e) {
-        print(e);
-        print('ERRPR');
-        Fluttertoast.showToast(
-            msg: "网络错误，请检查RSS源地址！",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 1,
-            backgroundColor: Colors.grey,
-            textColor: Colors.black,
-            fontSize: 16.0
-        );
-      }
+
     }
 
 
@@ -121,6 +166,7 @@ class addDialog extends Dialog{
                           child: FlatButton(onPressed: (){
                             print(this.url);
                             getRssData(this.url);
+                            Navigator.of(context).pop();
 //                            saveSource();
                           }, child:
                           Text('确认'))
@@ -143,9 +189,9 @@ class addDialog extends Dialog{
       ),
     );
   }
-  saveSource()async{
+  saveSource(Source source)async{
     await sourceData.openDb();
-    await sourceData.insert(new Source("flutter大全0","flutter","中国出版"));
+    await sourceData.insert(source);
     await sourceData.close();
   }
   getSources()async{

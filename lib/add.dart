@@ -8,6 +8,10 @@ import 'package:xml/xml.dart' as xml;
 
 
 class addDialog extends Dialog {
+  String sourceUrl = 'u';
+  String sourceTitle = 'y';
+  String sourceFavicon = 'f';
+  int sourceId = 0;
   SourceData sourceData = new SourceData();
   String url;
   addDialog({
@@ -15,7 +19,7 @@ class addDialog extends Dialog {
     this.url
   }) : super(key: key);
 
-  getRssData(url) {
+  getRssData(String url,BuildContext context) {
     var data ;
     if(url==null){
       Fluttertoast.showToast(
@@ -45,23 +49,30 @@ class addDialog extends Dialog {
               );
             }
             var title = document.findAllElements('title').first.text;
-            var sourceUrl = document.findAllElements('link').first.text;
-            Source source = new Source(title, url, sourceUrl+'/favicon.ico');
-            Future<Source> oldSource =  sourceData.getSourceByTitle(title);
-            if(oldSource != null){
-              Fluttertoast.showToast(
-                  msg: "已存在的RSS源！",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIos: 1,
-                  backgroundColor: Colors.grey,
-                  textColor: Colors.black,
-                  fontSize: 16.0
-              );
-            }else{
-              saveSource(source);
-            }
-
+            var getUrl = document.findAllElements('link').first.text;
+            Source source = new Source(0,title, url, getUrl+'/favicon.ico');
+            sourceUrl = getUrl;
+            sourceTitle = title;
+            sourceFavicon = getUrl+'/favicon.ico';
+            getSourceByTitle(title).then((val){
+              if(val != null){
+                print(val);
+                Fluttertoast.showToast(
+                    msg: "已存在的RSS源！",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 1,
+                    backgroundColor: Colors.grey,
+                    textColor: Colors.black,
+                    fontSize: 16.0
+                );
+              }else{
+                saveSource(source).then((val){
+                  print(val);
+                  Navigator.of(context).pop(new Source(val,sourceTitle, sourceUrl, sourceFavicon));
+                });
+              }
+            });
           }else{
             print(response.statusCode);
             Fluttertoast.showToast(
@@ -98,15 +109,6 @@ class addDialog extends Dialog {
                 fontSize: 16.0
             );
           }
-//          Fluttertoast.showToast(
-//              msg: "网络错误，请检查RSS源地址！",
-//              toastLength: Toast.LENGTH_SHORT,
-//              gravity: ToastGravity.BOTTOM,
-//              timeInSecForIos: 1,
-//              backgroundColor: Colors.grey,
-//              textColor: Colors.black,
-//              fontSize: 16.0
-//          );
         });
 
     }
@@ -152,10 +154,6 @@ class addDialog extends Dialog {
                         Container(
                           width: (MediaQuery.of(context).size.width-68)/2,
                           child: FlatButton(onPressed: (){
-//                            var db = new SourceData();
-//                            db.openDb();
-//                            print(db.queryAll());
-                            getSources();
                             Navigator.of(context).pop();
                           }, child:
                           Text('取消'))
@@ -165,9 +163,8 @@ class addDialog extends Dialog {
                           width: (MediaQuery.of(context).size.width-68)/2,
                           child: FlatButton(onPressed: (){
                             print(this.url);
-                            getRssData(this.url);
-                            Navigator.of(context).pop();
-//                            saveSource();
+                            getRssData(this.url,context);
+
                           }, child:
                           Text('确认'))
                           ,
@@ -199,6 +196,12 @@ class addDialog extends Dialog {
     List<Source> returns = await sourceData.queryAll();
     await sourceData.close();
     print(returns[0].url);
+  }
+  Future<Source> getSourceByTitle(String title) async {
+    await sourceData.openDb();
+    Source source = await sourceData.getSourceByTitle(title);
+    await sourceData.close();
+    return source;
   }
 
 }

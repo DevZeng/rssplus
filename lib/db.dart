@@ -14,8 +14,8 @@ class Source{
   String url;
   String favicon;
 
-  Source(String title,String url ,String favicon){
-//    this.id = id;
+  Source(int id,String title,String url ,String favicon){
+    this.id = id;
     this.title = title;
     this.url = url;
     this.favicon = favicon;

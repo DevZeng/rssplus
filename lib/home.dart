@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
               ).then((val) {
-//                print(val);
+                print(val);
               });
             },
           );
@@ -120,7 +120,16 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (BuildContext context){
         return new addDialog();
       }
-    );
+    ).then((val){
+      if (val!=null && val is Source){
+        print(val.title);
+        sources.add(val);
+        setState(() {
+          sources = sources;
+        });
+      }
+
+    });
   }
 
 

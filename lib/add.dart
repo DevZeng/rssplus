@@ -50,7 +50,7 @@ class addDialog extends Dialog {
             }
             var title = document.findAllElements('title').first.text;
             var getUrl = document.findAllElements('link').first.text;
-            Source source = new Source(0,title, url, getUrl+'/favicon.ico');
+            Source source = new Source(null,title, url, getUrl+'/favicon.ico');
             sourceUrl = getUrl;
             sourceTitle = title;
             sourceFavicon = getUrl+'/favicon.ico';
@@ -188,8 +188,11 @@ class addDialog extends Dialog {
   }
   saveSource(Source source)async{
     await sourceData.openDb();
-    await sourceData.insert(source);
+    await sourceData.insert(source).then((result){
+      sourceId = result.id;
+    });
     await sourceData.close();
+    return sourceId;
   }
   getSources()async{
     await sourceData.openDb();

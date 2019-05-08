@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     ).then((val){
       if (val!=null && val is Source){
-        print(val.title);
+        print(val.id);
         sources.add(val);
         setState(() {
           sources = sources;

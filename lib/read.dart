@@ -87,7 +87,7 @@ class NewsWebPageState extends State<NewsWebPage> {
   Widget build(BuildContext context) {
     List<Widget> titleContent = [];
     titleContent.add(new Text(
-      title.substring(0,10),
+      title.substring(0,10)+'...',
       style: new TextStyle(color: Colors.white),
       softWrap: false,
     ));

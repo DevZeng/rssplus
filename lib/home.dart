@@ -20,7 +20,7 @@ class MyHomePage extends StatefulWidget {
 }
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  List<Source> sources;
+  List<Source> sources = [];
   SourceData sourceData = new SourceData();
 
   void _incrementCounter() {
@@ -37,8 +37,10 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Source> returns = await sourceData.queryAll();
     await sourceData.close();
     setState(() {
+      if(returns != null){
+        sources = returns;
+      }
 //      print(returns.length);
-      sources = returns;
     });
   }
   delSource(int id) async {
@@ -74,6 +76,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 sources = sources;
               });
             }),
+            onTap: (){
+              Navigator.of(context).pushNamed("news_list", arguments: sources[index]);
+            },
             onLongPress: (){
               print('TEST');
               showDialog<Null>(

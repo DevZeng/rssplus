@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
+import 'newList.dart';
+import 'detail.dart';
+import 'read.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,6 +25,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Home'),
+      routes: {
+        'news_list':(context)=>new newsListPage(),
+        'detail_page':(context)=>new DetailPage(),
+      },
     );
   }
 }

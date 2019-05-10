@@ -27,6 +27,10 @@ dependencies:
   sqflite: ^1.1.5
   xml: ^3.4.1
   fluttertoast: ^3.0.4
+  shared_preferences: ^0.5.2
+  flutter_html: ^0.9.6
+  flutter_webview_plugin: ^0.3.5
+
 
 dev_dependencies:
   flutter_test:
